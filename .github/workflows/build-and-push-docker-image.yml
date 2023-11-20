@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'rc-[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_IMAGE_NAME: patients
+
+      # You an set the following two in the git-provider's UI
+      #   under repository Secrets/Variables.
+      # CONTAINER_REGISTRY_URL: docker.io
+      # CONTAINER_REGISTRY_USERNAME: kamranazeem
+      
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.CONTAINER_REGISTRY_URL }}
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }} 
+          password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}
+
+      - name: Prepare Docker Image Tags
+        id: prepare-docker-image-tags
+        run: |
+          SHORT_REF=$(basename ${GITHUB_REF})
+          SHORT_HASH=${GITHUB_SHA::7}
+          REGISTRY_URL_PLUS_USERNAME=${CONTAINER_REGISTRY_URL}/${CONTAINER_REGISTRY_USERNAME}
+          TAGS=""
+          if [[ "${SHORT_REF}" == "master" || "${SHORT_REF}" == "main" ]]; then 
+            echo "Found git commit on master/main branch. Setting docker image tag as: 'latest'" 
+            TAG=${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:latest
+          else 
+            echo "Setting docker image tag as: '${SHORT_REF}'" 
+            TAG=${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:${SHORT_REF}
+          fi
+          TAGS="${TAG},${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:${SHORT_HASH}"
+          echo "Complete Docker image-name and tags are setup as: ${TAGS}"
+          # echo ::set-output name=tags::${TAGS}
+          echo "TAGS=${TAGS}" >> $GITHUB_ENV
+
+
+      - name: Display variables
+        run: |
+          echo "CONTAINER_IMAGE_NAME is - $CONTAINER_IMAGE_NAME"
+          echo "env.CONTAINER_IMAGE_NAME is - ${{ env.CONTAINER_IMAGE_NAME }}"
+          echo "secrets.CONTAINER_REGISTRY_URL is - ${{ secrets.CONTAINER_REGISTRY_URL }}"
+          echo "secrets.CONTAINER_REGISTRY_USERNAME is - ${{ secrets.CONTAINER_REGISTRY_USERNAME }}"
+          echo "GITHUB_REF_NAME is - $GITHUB_REF_NAME"
+          echo "GITHUB_REF is - $GITHUB_REF"
+          echo "SHORT_REF is - $SHORT_REF"
+          echo "SHORT_HASH is - $SHORT_HASH"
+          echo "TAGS are - ${{ env.TAGS }}"
+
+      - name: Build and push docker image
+        id:  build-and-push-docker-image
+        uses: docker/build-push-action@v4
+        with:
+          # context: .
+          # file: ./Dockerfile
+          push: true
+          # tags: ${{ steps.prepare-docker-image-tags.outputs.tags }}
+          tags: ${{ env.TAGS }}
+                    
