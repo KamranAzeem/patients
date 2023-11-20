@@ -26,10 +26,14 @@ jobs:
         run: |
           echo "CONTAINER_IMAGE_NAME is - $CONTAINER_IMAGE_NAME"
           echo "env.CONTAINER_IMAGE_NAME is - ${{ env.CONTAINER_IMAGE_NAME }}"
-          echo "secrets.CONTAINER_REGISTRY_URL is - ${{ secrets.CONTAINER_REGISTRY_URL }}"
+          echo "CONTAINER_REGISTRY_URL is - ${{ CONTAINER_REGISTRY_URL }}"
           echo "secrets.CONTAINER_REGISTRY_USERNAME is - ${{ secrets.CONTAINER_REGISTRY_USERNAME }}"
+          USERNAME_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_USERNAME }} | wc -c)
+          echo "Length of CONTAINER_REGISTRY_USERNAME is - $USERNAME_LENGTH"
           TOKEN_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_TOKEN }} | wc -c)
           echo "Length of CONTAINER_REGISTRY_TOKEN is - $TOKEN_LENGTH "
+          SHORT_REF=$(basename ${GITHUB_REF})
+          SHORT_HASH=${GITHUB_SHA::7}
           echo "GITHUB_REF_NAME is - $GITHUB_REF_NAME"
           echo "GITHUB_REF is - $GITHUB_REF"
           echo "SHORT_REF is - $SHORT_REF"
