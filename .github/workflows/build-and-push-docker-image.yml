@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CONTAINER_IMAGE_NAME: patients
+      REGISTRY_USERNAME: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+
 
       # You an set the following two in the git-provider's UI
       #   under repository Secrets/Variables.
@@ -26,10 +28,11 @@ jobs:
         run: |
           echo "CONTAINER_IMAGE_NAME is - $CONTAINER_IMAGE_NAME"
           echo "env.CONTAINER_IMAGE_NAME is - ${{ env.CONTAINER_IMAGE_NAME }}"
-          echo "vars.CONTAINER_REGISTRY_URL is - ${{ vars.CONTAINER_REGISTRY_URL }}"
+          echo "vars.CONTAINER_REGISTRY_URL is - ${{vars.CONTAINER_REGISTRY_URL}}"
           echo "secrets.CONTAINER_REGISTRY_USERNAME is - ${{ secrets.CONTAINER_REGISTRY_USERNAME }}"
           USERNAME_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_USERNAME }} | wc -c)
           echo "Length of CONTAINER_REGISTRY_USERNAME is - $USERNAME_LENGTH"
+          echo "REGISTRY_USERNAME is - $REGISTRY_USERNAME"
           TOKEN_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_TOKEN }} | wc -c)
           echo "Length of CONTAINER_REGISTRY_TOKEN is - $TOKEN_LENGTH "
           SHORT_REF=$(basename ${GITHUB_REF})
