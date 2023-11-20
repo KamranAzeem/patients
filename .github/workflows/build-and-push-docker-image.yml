@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CONTAINER_IMAGE_NAME: patients
-      REGISTRY_USERNAME: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
 
 
       # You an set the following two in the git-provider's UI
