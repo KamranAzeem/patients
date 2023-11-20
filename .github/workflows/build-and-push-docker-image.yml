@@ -61,7 +61,7 @@ jobs:
         run: |
           SHORT_REF=$(basename ${GITHUB_REF})
           SHORT_HASH=${GITHUB_SHA::7}
-          REGISTRY_URL_PLUS_USERNAME=${{vars.CONTAINER_REGISTRY_URL}}/${CONTAINER_REGISTRY_USERNAME}
+          REGISTRY_URL_PLUS_USERNAME=${{vars.CONTAINER_REGISTRY_URL}}/${REGISTRY_USERNAME}
           TAGS=""
           if [[ "${SHORT_REF}" == "master" || "${SHORT_REF}" == "main" ]]; then 
             echo "Found git commit on master/main branch. Setting docker image tag as: 'latest'" 
