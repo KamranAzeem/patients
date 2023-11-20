@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "CONTAINER_IMAGE_NAME is - $CONTAINER_IMAGE_NAME"
           echo "env.CONTAINER_IMAGE_NAME is - ${{ env.CONTAINER_IMAGE_NAME }}"
-          echo "secrets.CONTAINER_REGISTRY_URL is - ${{ secrets.CONTAINER_REGISTRY_URL }}"
+          echo "vars.CONTAINER_REGISTRY_URL is - ${{ vars.CONTAINER_REGISTRY_URL }}"
           echo "secrets.CONTAINER_REGISTRY_USERNAME is - ${{ secrets.CONTAINER_REGISTRY_USERNAME }}"
           USERNAME_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_USERNAME }} | wc -c)
           echo "Length of CONTAINER_REGISTRY_USERNAME is - $USERNAME_LENGTH"
@@ -49,7 +49,7 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          registry: ${{ secrets.CONTAINER_REGISTRY_URL }}
+          registry: ${{ vars.CONTAINER_REGISTRY_URL }}
           username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }} 
           password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}
 
@@ -58,7 +58,7 @@ jobs:
         run: |
           SHORT_REF=$(basename ${GITHUB_REF})
           SHORT_HASH=${GITHUB_SHA::7}
-          REGISTRY_URL_PLUS_USERNAME=${CONTAINER_REGISTRY_URL}/${CONTAINER_REGISTRY_USERNAME}
+          REGISTRY_URL_PLUS_USERNAME=${{vars.CONTAINER_REGISTRY_URL}}/${CONTAINER_REGISTRY_USERNAME}
           TAGS=""
           if [[ "${SHORT_REF}" == "master" || "${SHORT_REF}" == "main" ]]; then 
             echo "Found git commit on master/main branch. Setting docker image tag as: 'latest'" 
