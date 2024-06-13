@@ -7,8 +7,7 @@ on:
       - 'master'
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - 'rc-[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -31,7 +30,6 @@ jobs:
           echo "secrets.CONTAINER_REGISTRY_USERNAME is - ${{ secrets.CONTAINER_REGISTRY_USERNAME }}"
           USERNAME_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_USERNAME }} | wc -c)
           echo "Length of CONTAINER_REGISTRY_USERNAME is - $USERNAME_LENGTH"
-          echo "REGISTRY_USERNAME is - $REGISTRY_USERNAME"
           TOKEN_LENGTH=$(echo ${{ secrets.CONTAINER_REGISTRY_TOKEN }} | wc -c)
           echo "Length of CONTAINER_REGISTRY_TOKEN is - $TOKEN_LENGTH "
           SHORT_REF=$(basename ${GITHUB_REF})
@@ -61,17 +59,19 @@ jobs:
           SHORT_REF=$(basename ${GITHUB_REF})
           SHORT_HASH=${GITHUB_SHA::7}
           REGISTRY_URL_PLUS_USERNAME=${{vars.CONTAINER_REGISTRY_URL}}/${{secrets.CONTAINER_REGISTRY_USERNAME}}
+          
           TAGS=""
+          
           if [[ "${SHORT_REF}" == "master" || "${SHORT_REF}" == "main" ]]; then 
-            echo "Found git commit on master/main branch. Setting docker image tag as: 'latest'" 
-            TAG=${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:latest
+            echo "Found git commit on master/main branch. Setting docker image tag as: ${SHORT_HASH}" 
+            TAG=${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:${SHORT_HASH}
           else 
             echo "Setting docker image tag as: '${SHORT_REF}'" 
             TAG=${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:${SHORT_REF}
           fi
-          TAGS="${TAG},${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:${SHORT_HASH}"
+          
+          TAGS="${TAG},${REGISTRY_URL_PLUS_USERNAME}/${CONTAINER_IMAGE_NAME}:latest"
           echo "Complete Docker image-name and tags are setup as: ${TAGS}"
-          # echo ::set-output name=tags::${TAGS}
           echo "TAGS=${TAGS}" >> $GITHUB_ENV
 
 
